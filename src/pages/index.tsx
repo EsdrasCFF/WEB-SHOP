@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { styled } from '../styles'
 import { HomeContainer, Product } from '../styles/pages/home'
 
 import { useKeenSlider } from 'keen-slider/react'
@@ -8,6 +7,7 @@ import { stripe } from '../lib/stripe';
 import Stripe from 'stripe';
 import { GetStaticProps } from 'next';
 import { priceFormatter } from '../utils/formatter';
+import Link from 'next/link';
 
 interface IHomeProps {
   products: {
@@ -17,14 +17,6 @@ interface IHomeProps {
     price: number | null,
   }[]
 }
-
-const Button = styled('button', {
-  background: '$green300',
-  borderRadius: '6px',
-  border: 0,
-  padding: '4px 8px',
-  color: '$white',
-})
 
 export default function Home({products}: IHomeProps) {
   const [sliderRef] = useKeenSlider({
@@ -38,14 +30,16 @@ export default function Home({products}: IHomeProps) {
     <HomeContainer ref={sliderRef} className='keen-slider'>
       {products.map( product => {
         return (
-          <Product key={product.id} className='keen-slider__slide'>
-            <Image src={product.imageUrl}  width={520} height={520} alt=''/>
+          <Link href={`/product/${product.id}`} key={product.id}>
+            <Product className='keen-slider__slide'>
+              <Image src={product.imageUrl}  width={520} height={520} alt=''/>
 
-            <footer>
-              <strong> {product.name } </strong>
-              <span> {product.price && priceFormatter.format(product.price / 100)} </span>
-            </footer>
-          </Product>
+              <footer>
+                <strong> {product.name } </strong>
+                <span> {product.price && priceFormatter.format(product.price / 100)} </span>
+              </footer>
+            </Product>
+          </Link>
         )
       })}
       
