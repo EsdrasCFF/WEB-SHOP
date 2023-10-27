@@ -1,24 +1,66 @@
+import { stripe } from "@/src/lib/stripe"
 import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/pages/product"
-import { useRouter } from "next/router"
+import { priceFormatter } from "@/src/utils/formatter"
+import { GetStaticProps } from "next"
+import Image from "next/image"
+import Stripe from "stripe"
 
-export default function Product() {
+interface IProductProps {
+  product: {
+    id: string,
+    name: string,
+    imageUrl: string,
+    price: number | null,
+    description: string
+  }
+}
 
-  const { query } = useRouter()
+export default function Product({ product }: IProductProps) {
+
 
   return(
     <ProductContainer>
-      <ImageContainer/>
+      <ImageContainer>
+        <Image src={product.imageUrl} width={520} height={480} alt=""/>
+      </ImageContainer>
     
       <ProductDetails>
-        <h1>Camiseta</h1>
+        <h1>{product.name}</h1>
         <span>
-          R$ 79,90
+          {product.price && priceFormatter.format(product.price)}
         </span>
 
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, delectus. Earum consectetur, praesentium eveniet soluta repellendus officiis reprehenderit illo inventore modi exercitationem, odit magnam natus asperiores placeat neque recusandae! Nisi!</p>
+        <p>{product.description}</p>
       
         <button> Comprar agora </button>
       </ProductDetails>
     </ProductContainer>
   )
+}
+
+
+export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params}) => {
+  const productId = params.id;
+  console.log(productId)
+
+  const product = await stripe.products.retrieve(productId, {
+    expand: ['default_price'],
+  })
+
+  
+  const price = product.default_price as Stripe.Price
+
+  return {
+    props: {
+      product: {
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: price.unit_amount,
+        description: product.description,
+      }
+    },
+    revalidate: 60 * 60 * 1, //1 hour
+  }
+
 }
