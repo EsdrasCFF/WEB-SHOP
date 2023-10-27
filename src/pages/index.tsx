@@ -6,6 +6,8 @@ import { useKeenSlider } from 'keen-slider/react'
 
 import { stripe } from '../lib/stripe';
 import Stripe from 'stripe';
+import { GetStaticProps } from 'next';
+import { priceFormatter } from '../utils/formatter';
 
 interface IHomeProps {
   products: {
@@ -41,7 +43,7 @@ export default function Home({products}: IHomeProps) {
 
             <footer>
               <strong> {product.name } </strong>
-              <span> {product.price && product.price / 100} </span>
+              <span> {product.price && priceFormatter.format(product.price / 100)} </span>
             </footer>
           </Product>
         )
@@ -51,7 +53,7 @@ export default function Home({products}: IHomeProps) {
   )
 }
 
-export const getServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ['data.default_price']
   })
@@ -71,6 +73,7 @@ export const getServerSideProps = async () => {
   return {
     props: {
       products
-    }
+    },
+    revalidate: 60 * 60 * 2
   }
 }
