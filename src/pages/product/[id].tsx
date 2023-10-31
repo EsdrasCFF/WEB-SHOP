@@ -7,16 +7,19 @@ import Stripe from "stripe"
 
 interface IProductProps {
   product: {
-    id: string,
-    name: string,
-    imageUrl: string,
-    price: number | null,
-    description: string
+    id: string;
+    name: string;
+    imageUrl: string;
+    price: number | null;
+    description: string;
+    defaultPriceId: string;
   }
 }
 
 export default function Product({ product }: IProductProps) {
-
+  function handleBuyProduct() {
+    console.log(product.defaultPriceId)
+  }
 
   return(
     <ProductContainer>
@@ -32,7 +35,7 @@ export default function Product({ product }: IProductProps) {
 
         <p>{product.description}</p>
       
-        <button> Comprar agora </button>
+        <button onClick={handleBuyProduct} > Comprar agora </button>
       </ProductDetails>
     </ProductContainer>
   )
@@ -71,6 +74,7 @@ export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params
         imageUrl: product.images[0],
         price: price.unit_amount,
         description: product.description,
+        defaultPriceId: price.id
       },
       revalidate: 60 * 60 * 1, //1 hour
     },
