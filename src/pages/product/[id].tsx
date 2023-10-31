@@ -1,7 +1,7 @@
 import { stripe } from "@/src/lib/stripe"
 import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/pages/product"
 import { priceFormatter } from "@/src/utils/formatter"
-import { GetStaticProps } from "next"
+import { GetStaticPaths, GetStaticProps } from "next"
 import Image from "next/image"
 import Stripe from "stripe"
 
@@ -27,7 +27,7 @@ export default function Product({ product }: IProductProps) {
       <ProductDetails>
         <h1>{product.name}</h1>
         <span>
-          {product.price && priceFormatter.format(product.price)}
+          {product.price && priceFormatter.format(product.price / 100)  }
         </span>
 
         <p>{product.description}</p>
@@ -38,11 +38,24 @@ export default function Product({ product }: IProductProps) {
   )
 }
 
+export const getStaticPaths: GetStaticPaths = async () => {
+  return{
+    paths: [
+      { params: {id: 'prod_OtK4DfmMeCIzAl'}}
+    ],
+    fallback: 'blocking'
+  }
+}
 
-export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params}) => {
-  const productId = params.id;
-  console.log(productId)
 
+export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params }) => {
+  const productId = params?.id;
+
+  if(!productId) {
+    return {
+      notFound: true
+    }
+  }
   const product = await stripe.products.retrieve(productId, {
     expand: ['default_price'],
   })
@@ -58,9 +71,8 @@ export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params
         imageUrl: product.images[0],
         price: price.unit_amount,
         description: product.description,
-      }
+      },
+      revalidate: 60 * 60 * 1, //1 hour
     },
-    revalidate: 60 * 60 * 1, //1 hour
   }
-
 }
