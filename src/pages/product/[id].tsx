@@ -3,6 +3,7 @@ import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/p
 import { priceFormatter } from "@/src/utils/formatter"
 import axios from "axios"
 import { GetStaticPaths, GetStaticProps } from "next"
+import Head from "next/head"
 import Image from "next/image"
 import { useState } from "react"
 import Stripe from "stripe"
@@ -42,22 +43,29 @@ export default function Product({ product }: IProductProps) {
   }
 
   return(
-    <ProductContainer>
-      <ImageContainer>
-        <Image src={product.imageUrl} width={520} height={480} alt=""/>
-      </ImageContainer>
-    
-      <ProductDetails>
-        <h1>{product.name}</h1>
-        <span>
-          {product.price && priceFormatter.format(product.price / 100)  }
-        </span>
+    <>
+      <Head>
+        <title>{product.name} | Ignite Shop</title>
 
-        <p>{product.description}</p>
+      </Head>
+    
+      <ProductContainer>
+        <ImageContainer>
+          <Image src={product.imageUrl} width={520} height={480} alt=""/>
+        </ImageContainer>
       
-        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct} > Comprar agora </button>
-      </ProductDetails>
-    </ProductContainer>
+        <ProductDetails>
+          <h1>{product.name}</h1>
+          <span>
+            {product.price && priceFormatter.format(product.price / 100)  }
+          </span>
+
+          <p>{product.description}</p>
+        
+          <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct} > Comprar agora </button>
+        </ProductDetails>
+      </ProductContainer>
+    </>
   )
 }
 

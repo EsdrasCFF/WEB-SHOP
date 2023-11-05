@@ -8,6 +8,7 @@ import Stripe from 'stripe';
 import { GetStaticProps } from 'next';
 import { priceFormatter } from '../utils/formatter';
 import Link from 'next/link';
+import Head from 'next/head';
 
 interface IHomeProps {
   products: {
@@ -27,23 +28,30 @@ export default function Home({products}: IHomeProps) {
   })
 
   return (
-    <HomeContainer ref={sliderRef} className='keen-slider'>
-      {products.map( product => {
-        return (
-          <Link href={`/product/${product.id}`} key={product.id} prefetch={false} >
-            <Product className='keen-slider__slide'>
-              <Image src={product.imageUrl}  width={520} height={520} alt=''/>
+    <>
+      <Head>
+        <title>Home | Ignite Shop</title>
 
-              <footer>
-                <strong> {product.name } </strong>
-                <span> {product.price && priceFormatter.format(product.price / 100)} </span>
-              </footer>
-            </Product>
-          </Link>
-        )
-      })}
-      
-    </HomeContainer>
+      </Head>
+
+      <HomeContainer ref={sliderRef} className='keen-slider'>
+        {products.map( product => {
+          return (
+            <Link href={`/product/${product.id}`} key={product.id} prefetch={false} >
+              <Product className='keen-slider__slide'>
+                <Image src={product.imageUrl}  width={520} height={520} alt=''/>
+
+                <footer>
+                  <strong> {product.name } </strong>
+                  <span> {product.price && priceFormatter.format(product.price / 100)} </span>
+                </footer>
+              </Product>
+            </Link>
+          )
+        })}
+        
+      </HomeContainer>
+    </>
   )
 }
 
